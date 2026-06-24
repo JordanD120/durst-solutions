@@ -1,9 +1,131 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
+  margin: 0;
   background: #020617;
+  color: white;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.35);
+}
+
+.glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+  border-radius: 1.5rem;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: #2563eb;
+  padding: 1rem 1.5rem;
+  font-weight: 800;
+  color: white;
+  transition: transform 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.25);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  background: #3b82f6;
+  box-shadow: 0 22px 50px rgba(37, 99, 235, 0.35);
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 1rem 1.5rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  transition: transform 200ms ease, background 200ms ease;
+}
+
+.secondary-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.input {
+  min-height: 3.25rem;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.75);
+  padding: 0.9rem 1rem;
+  color: white;
+  outline: none;
+  transition: border 200ms ease, box-shadow 200ms ease;
+}
+
+.input:focus {
+  border-color: rgba(103, 232, 249, 0.8);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.08);
+}
+
+.section-label {
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #67e8f9;
+}
+
+.section-title {
+  margin-top: 0.75rem;
+  max-width: 780px;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.section-subtitle {
+  margin-top: 1.25rem;
+  max-width: 720px;
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.particle {
+  animation-name: drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.15;
+  }
+
+  50% {
+    transform: translate3d(24px, -34px, 0);
+    opacity: 0.75;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.15;
+  }
 }
