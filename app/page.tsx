@@ -279,6 +279,6 @@ export default function Home() {
       <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-500">
         © 2026 Durst Solutions. Modern Websites • Automation • AI Solutions.
       </footer>
-    </main>
+    </main>//
   );
 }
