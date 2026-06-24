@@ -30,10 +30,26 @@ export default function Contact() {
           </div>
 
           <form
-            action={`mailto:${site.email}`}
-            method="post"
-            encType="text/plain"
             className="grid gap-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+
+              const form = event.currentTarget;
+              const formData = new FormData(form);
+
+              const name = formData.get("name") || "";
+              const email = formData.get("email") || "";
+              const businessWebsite = formData.get("businessWebsite") || "";
+              const service = formData.get("service") || "";
+              const message = formData.get("message") || "";
+
+              const subject = encodeURIComponent("New Durst Solutions Website Request");
+              const body = encodeURIComponent(
+                `Name: ${name}\nEmail: ${email}\nBusiness Website: ${businessWebsite}\nService: ${service}\n\nMessage:\n${message}`
+              );
+
+              window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
+            }}
           >
             <input name="name" className="input" placeholder="Name" required />
             <input name="email" type="email" className="input" placeholder="Email" required />
