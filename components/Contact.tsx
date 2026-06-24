@@ -1,3 +1,5 @@
+"use client";
+
 import { Mail, Phone, Send } from "lucide-react";
 import { site } from "@/lib/site";
 import Reveal from "./Reveal";
