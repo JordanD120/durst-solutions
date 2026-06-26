@@ -1,27 +1,51 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Gauge, Search, ShieldCheck, Smartphone, WandSparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Reveal from "./Reveal";
 
-function scoreFromUrl(url: string, offset: number) {
-  const clean = url.trim().toLowerCase();
-  const total = clean.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return 68 + ((total + offset) % 28);
-}
+type Scores = {
+  design: number;
+  seo: number;
+  mobile: number;
+  automation: number;
+};
 
 export default function WebsiteAuditTool() {
-  const [url, setUrl] = useState("");
-  const [submittedUrl, setSubmittedUrl] = useState("");
+  const [scores, setScores] = useState<Scores | null>(null);
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const scores = submittedUrl
-    ? [
-        { label: "Design", value: scoreFromUrl(submittedUrl, 3), icon: WandSparkles },
-        { label: "Mobile", value: scoreFromUrl(submittedUrl, 9), icon: Smartphone },
-        { label: "SEO Basics", value: scoreFromUrl(submittedUrl, 15), icon: Search },
-        { label: "Trust", value: scoreFromUrl(submittedUrl, 21), icon: ShieldCheck },
-      ]
-    : [];
+  async function submitAudit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const response = await fetch("/api/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        website: formData.get("website"),
+        businessInterest: formData.get("businessInterest"),
+      }),
+    });
+
+    const data = await response.json();
+    setLoading(false);
+
+    if (!response.ok) {
+      alert(data.error || "Something went wrong.");
+      return;
+    }
+
+    setScores(data.scores);
+    setRecommendations(data.recommendations);
+    form.reset();
+  }
 
   return (
     <section id="audit" className="px-6 py-24">
@@ -30,68 +54,56 @@ export default function WebsiteAuditTool() {
           <div>
             <p className="section-label">FREE WEBSITE AUDIT</p>
             <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-              Turn your website into a better sales tool.
+              Get a quick website audit preview.
             </h2>
             <p className="mt-5 leading-8 text-slate-300">
-              Enter a website to preview the audit experience. This is currently a frontend demo.
-              The real version can connect to speed, SEO, accessibility, and AI analysis tools.
+              Enter your info and website. You’ll get a preview score, and the request will appear
+              in the admin dashboard.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={0.12}>
           <div className="glass-card p-6">
-            <form
-              className="flex flex-col gap-3 sm:flex-row"
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (url.trim()) setSubmittedUrl(url.trim());
-              }}
-            >
+            <form onSubmit={submitAudit} className="grid gap-3">
+              <input name="name" className="input" placeholder="Name" required />
+              <input name="email" type="email" className="input" placeholder="Email" required />
+              <input name="website" className="input" placeholder="www.mybusiness.com" required />
               <input
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                placeholder="examplebusiness.com"
-                className="min-h-12 flex-1 rounded-2xl border border-white/10 bg-slate-950/80 px-4 text-white outline-none transition focus:border-cyan-300"
+                name="businessInterest"
+                className="input"
+                placeholder="What do you want to improve?"
               />
-              <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 font-bold transition hover:bg-blue-500">
-                Run Demo Audit <ArrowRight size={18} />
+              <button className="primary-button justify-center" disabled={loading}>
+                {loading ? "Running Audit..." : "Run Free Audit"} <ArrowRight size={18} />
               </button>
             </form>
 
-            {submittedUrl ? (
+            {scores && (
               <div className="mt-7 space-y-4">
-                <div className="flex items-center gap-3 text-slate-300">
-                  <Gauge className="text-cyan-300" />
-                  Demo results for <span className="font-bold text-white">{submittedUrl}</span>
-                </div>
-
-                {scores.map((score) => {
-                  const Icon = score.icon;
-
-                  return (
-                    <div key={score.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <p className="flex items-center gap-2 font-bold">
-                          <Icon size={18} className="text-cyan-300" />
-                          {score.label}
-                        </p>
-                        <p className="font-black">{score.value}/100</p>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-                        <div
-                          className="h-full rounded-full bg-cyan-300 transition-all duration-700"
-                          style={{ width: `${score.value}%` }}
-                        />
-                      </div>
+                {Object.entries(scores).map(([label, value]) => (
+                  <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="mb-2 flex justify-between capitalize">
+                      <p className="font-bold">{label}</p>
+                      <p className="font-black">{value}/100</p>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm leading-7 text-slate-300">
-                The real version will generate a report covering mobile design, conversion issues,
-                SEO basics, website speed, and automation opportunities.
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                      <div
+                        className="h-full rounded-full bg-cyan-300"
+                        style={{ width: `${value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="font-bold">Recommended improvements</p>
+                  <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-300">
+                    {recommendations.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </div>

@@ -33,24 +33,32 @@ export default function Contact() {
 
           <form
             className="grid gap-4"
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
 
               const form = event.currentTarget;
               const formData = new FormData(form);
 
-              const name = formData.get("name") || "";
-              const email = formData.get("email") || "";
-              const businessWebsite = formData.get("businessWebsite") || "";
-              const service = formData.get("service") || "";
-              const message = formData.get("message") || "";
+              const response = await fetch("/api/contact", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  name: formData.get("name"),
+                  email: formData.get("email"),
+                  businessWebsite: formData.get("businessWebsite"),
+                  service: formData.get("service"),
+                  message: formData.get("message"),
+                }),
+              });
 
-              const subject = encodeURIComponent("New Durst Solutions Website Request");
-              const body = encodeURIComponent(
-                `Name: ${name}\nEmail: ${email}\nBusiness Website: ${businessWebsite}\nService: ${service}\n\nMessage:\n${message}`
-              );
-
-              window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
+              if (response.ok) {
+                alert("Message sent successfully.");
+                form.reset();
+              } else {
+                alert("Something went wrong. Please try again.");
+              }
             }}
           >
             <input name="name" className="input" placeholder="Name" required />

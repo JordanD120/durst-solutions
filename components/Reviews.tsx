@@ -1,13 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
-import { reviews } from "@/data/reviews";
 import Reveal from "./Reveal";
 
+type Review = {
+  id: string;
+  name: string;
+  role: string | null;
+  rating: number;
+  quote: string;
+};
+
 export default function Reviews() {
-  const approvedReviews = reviews.filter((review) => review.approved);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    async function loadReviews() {
+      const response = await fetch("/api/public-reviews");
+      const data = await response.json();
+
+      if (response.ok) {
+        setReviews(data.reviews);
+      }
+    }
+
+    loadReviews();
+  }, []);
+
+  async function submitReview(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const response = await fetch("/api/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        role: formData.get("role"),
+        email: formData.get("email"),
+        rating: formData.get("rating"),
+        quote: formData.get("quote"),
+      }),
+    });
+
+    if (response.ok) {
+      setSubmitted(true);
+      form.reset();
+    } else {
+      alert("Something went wrong.");
+    }
+  }
 
   return (
     <section id="reviews" className="px-6 py-24">
@@ -16,62 +62,51 @@ export default function Reviews() {
           <p className="section-label">REVIEWS</p>
           <h2 className="section-title">Testimonials with approval control</h2>
           <p className="section-subtitle">
-            The public site only displays approved reviews. This avoids spam, fake reviews, and
-            unserious submissions.
+            Reviews are submitted privately and only appear publicly after approval.
           </p>
         </Reveal>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          {approvedReviews.map((review, index) => (
-            <Reveal key={review.name} delay={index * 0.08}>
-              <div className="glass-card h-full p-7">
+          {reviews.length === 0 ? (
+            <div className="glass-card p-7 text-slate-300">
+              Approved reviews will appear here.
+            </div>
+          ) : (
+            reviews.map((review) => (
+              <div key={review.id} className="glass-card h-full p-7">
                 <div className="flex gap-1 text-yellow-300">
                   {Array.from({ length: review.rating }).map((_, i) => (
                     <Star key={i} size={18} fill="currentColor" />
                   ))}
                 </div>
                 <p className="mt-5 text-lg leading-8 text-slate-200">“{review.quote}”</p>
-                <div className="mt-6">
-                  <p className="font-bold">{review.name}</p>
-                  <p className="text-sm text-slate-400">{review.role}</p>
-                </div>
+                <p className="mt-6 font-bold">{review.name}</p>
+                <p className="text-sm text-slate-400">{review.role}</p>
               </div>
-            </Reveal>
-          ))}
+            ))
+          )}
+
+          <form onSubmit={submitReview} className="glass-card grid gap-3 p-7">
+            <h3 className="text-2xl font-black">Submit a review</h3>
+            {submitted && (
+              <p className="rounded-2xl bg-cyan-300/10 p-3 text-sm text-cyan-100">
+                Review submitted. It will appear after approval.
+              </p>
+            )}
+            <input name="name" className="input" placeholder="Name" required />
+            <input name="role" className="input" placeholder="Business / Role" />
+            <input name="email" type="email" className="input" placeholder="Email" />
+            <select name="rating" className="input" defaultValue="5">
+              <option value="5">5 stars</option>
+              <option value="4">4 stars</option>
+              <option value="3">3 stars</option>
+              <option value="2">2 stars</option>
+              <option value="1">1 star</option>
+            </select>
+            <textarea name="quote" className="input min-h-28" placeholder="Your review" required />
+            <button className="primary-button justify-center">Submit Review</button>
+          </form>
         </div>
-
-        <Reveal>
-          <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-            <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-              <div>
-                <h3 className="text-2xl font-black">Review submission preview</h3>
-                <p className="mt-3 leading-7 text-slate-300">
-                  This form shows the future review flow. Later, submissions will go to a database,
-                  wait for approval, and only approved reviews will show publicly.
-                </p>
-              </div>
-
-              {submitted ? (
-                <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-5 text-cyan-100">
-                  Review received in demo mode. Backend approval system comes next.
-                </div>
-              ) : (
-                <form
-                  className="grid gap-3"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    setSubmitted(true);
-                  }}
-                >
-                  <input className="input" placeholder="Name" />
-                  <input className="input" placeholder="Business / Role" />
-                  <textarea className="input min-h-28" placeholder="Your review" />
-                  <button className="primary-button w-full justify-center">Submit Review</button>
-                </form>
-              )}
-            </div>
-          </div>
-        </Reveal>
       </div>
     </section>
   );
