@@ -11,7 +11,7 @@ export const site = {
 
   phone:
     process.env.NEXT_PUBLIC_PHONE ??
-    "(972) 697-3090",
+    "Not Available",
 
   tagline: "Modern Websites • Automation • AI Solutions",
   description:
