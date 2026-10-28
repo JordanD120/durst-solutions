@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <div className="site-shell">
@@ -15,6 +17,7 @@ export default function Home() {
           <h1>A little space<br />for what’s next<span className="accent">.</span></h1>
           <p className="intro">You’ve found Jordan’s corner of the internet.<br className="desktop-break" /> Something new is taking shape. More to come.</p>
           <div className="status"><span aria-hidden="true" />A fresh start</div>
+          <p className="project-link"><Link href="/solar">Explore the Helioforge solar project <span aria-hidden="true">↗</span></Link></p>
         </div>
 
         <div className="artwork" aria-hidden="true">
