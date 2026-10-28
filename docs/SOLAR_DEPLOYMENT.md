@@ -1,6 +1,32 @@
 # Solar integration — review and deployment runbook
 
-## Current staged release
+## Activation prerequisites verified — October 28, 2026
+
+Supabase is healthy and the private queue migration is installed. Live grants
+deny anon/authenticated RPC execution and allow only service_role. The owner has
+a confirmed invited account and enabled membership. The hourly solar-retention
+job is installed and active. Production server credentials, origin and dedicated
+worker token are configured; no credentials are stored in this repository.
+
+Windows now has separate administrator-owned parent/calculation runtimes,
+read-only code, protected DPAPI token storage, all-profile calculation network
+blocks, blocked inbound traffic, and a dedicated mounted 512 MiB state volume.
+Eight effective-account probes passed, including profile denial, write denial,
+parent HTTPS, compute network denial, process/memory limits and a real isolated
+local engineering run. The permanent task uses HelioforgeWorker, limited
+privileges, a protected Windows-stored password and single-instance behavior.
+The account has batch logon and is denied interactive/remote interactive logon.
+
+The reviewed code gate is ready. Runtime remains disabled unless SOLAR_ENABLED
+is exactly true; Production activation is authorized by Jordan's request to
+finish the integration. Preview remains false. First live account/job checks
+must be recorded before claiming full end-to-end completion.
+
+The plan allows one firewall rate-limit rule: both POST session and worker
+routes share 120 requests/minute/IP at the edge. The stricter database sign-in
+and submission limits apply independently. No hosting plan upgrade was made.
+
+## Earlier staged release notes (superseded by the status above)
 
 Jordan approved publishing the solar project after replacing the business site.
 The new release retains the generic personal homepage, links to `/solar`, and

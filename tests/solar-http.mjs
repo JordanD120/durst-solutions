@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { setTimeout } from 'node:timers/promises';
 const origin = 'http://127.0.0.1:3019';
-const enabled = false; // This release has a code-level activation lock.
+const enabled = !process.argv.includes('--disabled');
 const child = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3019'], {
   env: { SystemRoot: process.env.SystemRoot, PATH: process.env.PATH, NEXT_TELEMETRY_DISABLED: '1',
     NEXT_PUBLIC_SUPABASE_URL: 'https://build-only.supabase.co', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'build-only-public-key',
